@@ -1,0 +1,8 @@
+{
+  "CpuLimitValue": 80,
+  "MemoryLimitValue": 80,
+  "DiskLimitSize": 1073741824,
+  "IsWriteLog": true,
+  "StartTime": "09:00:00",
+  "EndTime": "15:30:00"
+}

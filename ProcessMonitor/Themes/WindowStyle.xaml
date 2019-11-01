@@ -1,0 +1,108 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    >
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml"/>
+        <ResourceDictionary Source="Assets/Menu.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="MinimizeButtonTemplate" TargetType="{x:Type Button}">
+        <Border x:Name="btn_border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" 
+                Background="{TemplateBinding Background}"
+                                                                Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="true">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Path x:Name="btn_path" Data="M0,6 L12,6 Z" Width="12" Height="12" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                      StrokeThickness="2" ClipToBounds="True" RenderOptions.BitmapScalingMode="NearestNeighbor"  StrokeLineJoin="Bevel"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}, Mode=FindAncestor}}"  
+                      RenderTransformOrigin="0.5,0.5"  SnapsToDevicePixels="True">
+                    <Path.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </Path.RenderTransform>
+                </Path>
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard >
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="btn_path">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="6"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard >
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="btn_path">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="6"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+                <Setter TargetName="btn_border" Property="Background" Value="Transparent" />
+                <Setter TargetName="btn_path" Property="Stroke" Value="{DynamicResource SystemButtonForegroundOnMoseOver}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="btn_path" Property="Stroke" Value="{DynamicResource SystemButtonForegroundIsPressed}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="CloseButtonTemplate" TargetType="{x:Type Button}">
+        <Border x:Name="btn_border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"
+                                                                SnapsToDevicePixels="True" Width="30" Height="30">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Path x:Name="btn_path" Data="M0,0 L12,12 M12,0 L0,12" Width="12" Height="12" Stroke="{TemplateBinding Foreground}"
+                                                                      StrokeThickness="2" ClipToBounds="True" RenderOptions.BitmapScalingMode="NearestNeighbor" StrokeLineJoin="Bevel" SnapsToDevicePixels="True">
+                    <Path.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform />
+                            <SkewTransform />
+                            <RotateTransform CenterX="6" CenterY="6" />
+                            <TranslateTransform />
+                        </TransformGroup>
+                    </Path.RenderTransform>
+                </Path>
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)" Storyboard.TargetName="btn_path">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="90" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)" Storyboard.TargetName="btn_path">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="90" />
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+                <Setter TargetName="btn_border" Property="Background" Value="Transparent" />
+                <Setter TargetName="btn_path" Property="Stroke" Value="{DynamicResource SystemButtonForegroundOnMoseOver}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="btn_path" Property="Stroke" Value="{DynamicResource SystemButtonForegroundIsPressed}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>

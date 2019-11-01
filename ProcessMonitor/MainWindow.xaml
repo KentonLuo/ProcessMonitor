@@ -1,0 +1,348 @@
+﻿<Window x:Class="ProcessMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="性能监控工具"
+        Height="400" Width="800">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="TitleTemplate">
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Image Width="48" Height="48" Margin="20 0 10 0"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+       
+    </Window.Resources>
+    <!--<controls:ModernFrame x:Name="PART_ContentFrame" Grid.Row="1" 
+                                                Source="{Binding  RelativeSource={RelativeSource AncestorType=controls:ModernWindow,Mode=FindAncestor},Path=ContentSource}" 
+                                                SnapsToDevicePixels="True" 
+                                                ContentLoader="{Binding RelativeSource={RelativeSource Self},Path=ContentLoader}"/>-->
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="CPU使用率："/>
+                <ProgressBar Width="450" Height="15" Value="{Binding CpuProgress}"/>
+                <TextBlock Text="{Binding CpuProgress}" Margin="15 0 0 0"/>
+                <TextBlock Text="%"/>
+                <TextBlock Text="预警值：" Margin="15 0 0 0"/>
+                <TextBox x:Name="Cpu_tb" Width="30" Text="{Binding CpuLimitValue, Mode=TwoWay}" TextChanged="Cpu_tb_TextChanged"/>
+                <TextBlock Margin="5 0 0 0" Text="%"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="内存使用率："/>
+                <ProgressBar Width="450" Height="15" Value="{Binding MemoryProgress}"/>
+                <TextBlock Text="{Binding MemoryProgress}" Margin="15 0 0 0"/>
+                <TextBlock Text="%"/>
+                <TextBlock Text="预警值：" Margin="15 0 0 0"/>
+                <TextBox x:Name="Memory_tb" Width="30" Text="{Binding MemoryLimitValue, Mode=TwoWay}" TextChanged="Memory_tb_TextChanged"/>
+                <TextBlock Margin="5 0 0 0" Text="%"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" >
+            <CheckBox Content="是否记录日志" IsChecked="{Binding IsWriteLog, Mode=TwoWay}"/>
+            <TextBlock Text="记录时间段：" Margin="40 0 0 0"/>
+            <TextBox Text="{Binding StartTime, Mode=TwoWay}" />
+            <TextBlock Text="~"/>
+            <TextBox Text="{Binding EndTime, Mode=TwoWay}"/>
+            <!--<CheckBox Margin="50 0 0 0" Content="清理日志" IsChecked="{Binding IsWriteLog, Mode=TwoWay}"/>-->
+        </StackPanel>
+        <DataGrid Background="White" Grid.Row="2" x:Name="DG_Drivers" ItemsSource="{Binding HardDisks, Mode=TwoWay}"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  AlternationCount="2"  
+                  AutoGenerateColumns="False" 
+                  FontSize="13"
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False"
+                  VerticalGridLinesBrush="#FFBCC1BC" 
+                  HorizontalGridLinesBrush="#FFBCC1BC"
+                  SelectionChanged="DG_Infos_SelectionChanged" >
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontSize" Value="11" />
+                    <Setter Property="Height" Value="Auto" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
+                            <Setter Property="Background" Value="White" />
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
+                            <Setter Property="Background" Value="LightGray" />
+                        </Trigger>
+                    </Style.Triggers>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontFamily" Value="SimHei"/>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock  FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="盘符"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock FontSize="12" 
+                                           Margin="5 0 0 0"
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="{Binding DiskName}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock  FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="磁盘空间"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock FontSize="12"  
+                                           Margin="5 0 0 0"
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text="{Binding Total}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock  FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="剩余空间"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock FontSize="12" 
+                                            Margin="5 0 0 0"
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text="{Binding Available}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock  FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="使用率"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="12"  Margin="5 0 0 0"
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text="{Binding UsedRate}" />
+                                    <TextBlock FontSize="12" 
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text=" %" />
+                                </StackPanel>
+                               
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock  FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="提示"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="12" 
+                                                Margin="5 0 0 0"
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text="{Binding Tip}" />
+                                </StackPanel>
+
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!--<DataGrid Background="White" Grid.Row="3" x:Name="DG_Infos" ItemsSource="{Binding Apps, Mode=TwoWay}"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  AlternationCount="2"  
+                  AutoGenerateColumns="False" 
+                  FontSize="13"
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False"
+                  VerticalGridLinesBrush="#FFBCC1BC" 
+                  HorizontalGridLinesBrush="#FFBCC1BC"
+                  SelectionChanged="DG_Infos_SelectionChanged" >
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontSize" Value="11" />
+                    <Setter Property="Height" Value="Auto" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex"  Value="0">
+                            <Setter Property="Background" Value="White" />
+                        </Trigger>
+                        <Trigger Property="ItemsControl.AlternationIndex"  Value="1">
+                            <Setter Property="Background" Value="LightGray" />
+                        </Trigger>
+                    </Style.Triggers>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontFamily" Value="SimHei"/>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox x:Name="cb_SelectAll" Width="15" Height="15" Checked="Cb_SelectAll_Checked" Unchecked="Cb_SelectAll_Unchecked"
+                                          Margin="0,0,5,0" IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=DataContext.IsAllSelected}" />
+                                    <TextBlock FontSize="12" 
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center" 
+                                               Text="进程名" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox Width="15" Height="15" Click="CheckBox_Click"                                        
+                                          Margin="4,0,5,0" IsChecked="{Binding Path=IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         />
+                                    <TextBlock FontSize="12" 
+                                               FontFamily="Thaoma"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Center" 
+                                               Text="{Binding ProcessName}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*" CanUserSort="True" CanUserResize="False" CanUserReorder="False" >
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock FontSize="12" 
+                                        FontFamily="Thaoma"
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Center" 
+                                        Text="进程ID"
+                                        />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <TextBlock FontSize="12"
+                                           Margin="5 0 0 0"
+                                            FontFamily="Thaoma"
+                                            HorizontalAlignment="Left" 
+                                            VerticalAlignment="Center" 
+                                            Text="{Binding ProcessId}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>-->
+    </Grid>
+</Window>
